@@ -1,2 +1,4 @@
 all:
-	python3 guiFinal.py
+	python3 generateLive.py
+data:
+	python3 generateData.py
