@@ -5,6 +5,15 @@
 # Type: python3 guiFinal.py
 # Instructions to run --------------------------------------------------------------------------------------
 
+# @desc: This program creates a GUI from New York Times puzzle website
+#       The data will be taken from that day's puzzle, unless it is a saturday
+#       in which I have no clue what is gonna happen, cause it is a saturday :)
+#
+# @author: Sayed Abdullah Qutb
+# @date: 21/04/2020
+# @version: v2.0
+#
+
 # Import the tkinter library for the gui
 import tkinter as tk
 # Import Selenium libraries and relevant drivers
@@ -94,11 +103,11 @@ W.place(x=100,y=170)
 createTable()                   # Print a 5x5 table
 
 # Name of the group as a tk label
-tk.Label(window, font=("Arial", 20), text="Group: APOLLO", bg='black', fg = 'white').place(y = 100, x = 80)
+tk.Label(window, font=("Arial", 20), text="APOLLO", bg='black', fg = 'white').place(y = 100, x = 80)
 
 # Print the current date and time
 currentDT = datetime.datetime.now()
-tk.Label(window, font=("Arial", 20), text = "Date: " + str(currentDT)[0:16], bg='black', fg = 'white',).place(y = 570, x = 180)
+tk.Label(window, font=("Arial", 20), text = str(currentDT)[0:16], bg='black', fg = 'white',).place(y = 570, x = 180)
 
 # Puzzle Iteration ----------------------------------------------------------------------------------
 # While loop to iterate over each letter in the puzzle

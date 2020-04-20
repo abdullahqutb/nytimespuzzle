@@ -5,11 +5,16 @@
 # Type: python3 guiFinal.py
 # Instructions to run --------------------------------------------------------------------------------------
 
+# @desc: This program creates a GUI from the data given by filename "file.txt"
+#       Just rename the data to "file.txt" and type make data in terminal
+#
+# @author: Sayed Abdullah Qutb
+# @date: 21/04/2020
+# @version: v2.0
+#
+
 # Import the tkinter library for the gui
 import tkinter as tk
-# Import Selenium libraries and relevant drivers
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 import time
 import datetime
 
@@ -65,23 +70,8 @@ def createDown():
         j+=40
     return
 
-# Getting the data from New York Times puzzle - SELENIUM ---------------------------------
-# Main driver for Selenium opening Firefox
-driver = webdriver.Firefox()
-
-driver.set_page_load_timeout(50)                                            # Timeout after 50secs if page does not load
-driver.get("https://www.nytimes.com/crosswords/game/mini")                  # Open the new york times website
-driver.find_element_by_xpath("//button[@aria-label='OK']").send_keys(Keys.ENTER)        # Press Enter right after the website opens up
-driver.find_element_by_xpath("//button[@aria-label='reveal']").click()                     # Click on Reveal to open the reveal sub menu
-driver.find_element_by_xpath('/html/body/div[1]/div/div/div[4]/div/main/div[2]/div/div/ul/div[2]/li[2]/ul/li[3]/a').click()     # Click the Puzzle from sub menu
-driver.find_element_by_xpath("//button[@aria-label='Reveal']").send_keys(Keys.ENTER)            # Press Enter to reveal the puzzle
-driver.find_element_by_xpath("//button[@aria-label='Subscribe to Play']").send_keys(Keys.ENTER)         # Press enter to close the pop up
-element = driver.find_element_by_xpath("/html/body")            # Put the body tag inside element
-time.sleep(2)                   # Wait 4secs after loading is finished
-content = element.get_attribute("innerHTML")       # Copy all html to word
-time.sleep(2)                   # Wait 4secs after loading is finished
-driver.quit()                 # Quit the driver and session
-
+file = open("file.txt")
+content = file.read()
 
 # MAIN Method - Making the GUI ----------------------------------------------------------
 # Making the main crossword window
