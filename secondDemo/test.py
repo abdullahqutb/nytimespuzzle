@@ -6,13 +6,16 @@
 # Instructions to run --------------------------------------------------------------------------------------
 
 # @desc: This program generates clues for the given data filename "file.txt"
-#       
+#
 #
 # @author: Sayed Abdullah Qutb
 # @date: 21/04/2020
 # @version: v2.0
 #
 
+# Import Selenium libraries and relevant drivers
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 # Import the tkinter library for the gui
 import tkinter as tk
 import time
@@ -72,6 +75,9 @@ def createDown():
 
 file = open("file.txt")
 content = file.read()
+
+# Main driver for Selenium opening Firefox
+driver = webdriver.Firefox()
 
 # MAIN Method - Making the GUI ----------------------------------------------------------
 # Making the main crossword window
