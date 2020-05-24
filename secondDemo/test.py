@@ -5,34 +5,31 @@
 # Type: python3 guiFinal.py
 # Instructions to run --------------------------------------------------------------------------------------
 
-# @desc: This program generates clues for the given data filename "file.txt"
+# @desc: This program generates new clues for the daily new york times mini puzzle
 #
 # @author: APOLLO
 # @date: 21/04/2020
 # @version: v2.0
 #
 
-# Import the tkinter library for the gui
+# Import all the needed libraries
 import tkinter as tk
-# Import Selenium libraries and relevant drivers
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 import time
 import datetime
 import os
-# BeautifulSoup import
 from bs4 import BeautifulSoup
 import requests
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 caps = DesiredCapabilities().FIREFOX
-# caps["pageLoadStrategy"] = "normal"  #  complete
 caps["pageLoadStrategy"] = "eager"  #  interactive
-# caps["pageLoadStrategy"] = "none"   #  undefined
 
-
+# Open oxford dictionary to find clue
 def oxford(word, a):
+    print("Opening Oxford Dictionary to find clue!")
     driver = webdriver.Firefox(capabilities=caps)
     time.sleep(2)
     driver.implicitly_wait(10)
@@ -47,6 +44,7 @@ def oxford(word, a):
         defi = element.get_attribute("innerHTML")
     except:
         driver.quit()
+        print("Clue not found in Oxford Dictionary, trying definitions.net")
         definitions(word, a)
         return
     result = ""
@@ -54,10 +52,11 @@ def oxford(word, a):
     in1 = defi.find("<a")
     if(stop != -1 and stop < in1):
         result = defi[:in1]
-        driver.quit()
     else:
         if (len(result) < 5):
+            print("Clue not found in Oxford Dictionary, trying definitions.net")
             definitions(word, a)
+            driver.quit()
             return
         result = defi[:in1]
         in2 = defi.find('ndv">', in1)
@@ -71,17 +70,19 @@ def oxford(word, a):
         b = result.find("<")
         if (b != -1):
             result = result[:b]
-        if(a == 0):
-            print(result)
-            acrossCluesNew.append(result)
-        else:
-            print(result)
-            downCluesNew.append(result)
-
+    print("Clue found in Oxford Dictionary")
+    if(a == 0):
+        print(result.strip())
+        acrossCluesNew.append(result)
+    else:
+        print(result)
+        downCluesNew.append(result)
     driver.quit()
     return
 
+# Open definitions.net to find clue
 def definitions(word, a):
+    print("Opening definitions.net to find clue!")
     driver = webdriver.Firefox(capabilities=caps)
     time.sleep(2)
     driver.implicitly_wait(10)
@@ -90,7 +91,6 @@ def definitions(word, a):
     driver.find_element_by_id("search").send_keys(word)
     time.sleep(1)
     driver.find_element_by_id("page-word-search-button").send_keys(Keys.ENTER)
-
     page_link = "https://www.definitions.net/definition/" + word
     page_response = requests.get(page_link, timeout=5)
     page_content = BeautifulSoup(page_response.content, "html.parser")
@@ -98,6 +98,7 @@ def definitions(word, a):
     result = defs[0].text[:105]
     result = result.strip('<')
     result = result.strip(':')
+    print("Clue found in definitions.net")
     if(a == 0):
         acrossCluesNew.append(result)
     else:
@@ -105,10 +106,10 @@ def definitions(word, a):
     driver.quit()
     return
 
-
 cellSize = 75
 # Creating the grid table of the puzzle
 def createTable():
+    print("Creating the puzzle table and grid")
     i = 0
     while i <= 5 * cellSize:
         j = 0
@@ -121,6 +122,7 @@ def createTable():
 # Marking numbers based on clues
 numSize = 15
 def markNum(j, i, num):
+    print("Printing number on the cell, row: %d, column: %d, number: %s" %(j, i, num))
     x = cellSize * i + 10
     y = cellSize * j + 12
     W.create_text(x, y, font=("Arial", numSize), text = num)
@@ -129,6 +131,7 @@ def markNum(j, i, num):
 # Writing letters in cells
 letterSize = 30
 def markLetter(j, i, letter):
+    print("Printing letter on the cell, row: %d, column: %d, letter: %s" %(j, i, letter))
     x = cellSize * i + 35
     y = cellSize * j + 40
     W.create_text(x, y, font=("Arial", letterSize), text = letter)
@@ -136,22 +139,26 @@ def markLetter(j, i, letter):
 
 # Marking black cells
 def markBlack(col, row):
+    print("Marking cell black, row: %d, column: %d" %(col, row))
     W.create_rectangle(col * cellSize, row * cellSize, col * cellSize + cellSize, row * cellSize + cellSize, fill='black')
     return
 
 textWidth = 320
 def createAcrossNew():
-    newClues.create_text(130, 50, font=('Arial',40),text='Across')
+    print("Printing new across clues")
+    newClues.create_text(160, 50, font=('Arial',40),text='New Across')
     j = 0
     k = 0
     for i in acrossClues:
-        newClues.create_text(30, 100 + j,font=('Arial',10), anchor='w', text= i + ": " + acrossCluesNew[k], width=textWidth)
+        newClues.create_text(30, 100 + j,font=('Arial',10), anchor='w', text= i + ": " +
+                acrossCluesNew[k].capitalize().strip(' : '), width=textWidth)
         j+=40
         k+=1
     return
 
 # Printing Across clues
 def createAcross():
+    print("Printing across clues")
     X.create_text(130,50, font=('Arial',40),text='Across')
     j = 0
     for i in acrossClues:
@@ -160,17 +167,20 @@ def createAcross():
     return
 
 def createDownNew():
-    newClues.create_text(450,50,font=('Arial',40),text='Down')
+    print("Printing new down clues")
+    newClues.create_text(480,50,font=('Arial',40),text='New Down')
     j = 0
     k = 0
     for i in downClues:
-        newClues.create_text(350, 100 + j,font=('Arial',10), anchor='w', text= i + ": " + downCluesNew[k], width=textWidth)
+        newClues.create_text(350, 100 + j,font=('Arial',10), anchor='w', text= i + ": " +
+                downCluesNew[k].capitalize().strip(' : '), width=textWidth)
         j+=40
         k+=1
     return
 
 # Printing Down clues
 def createDown():
+    print("Printing across clues")
     X.create_text(450,50,font=('Arial',40),text='Down')
     j = 0
     for i in downClues:
@@ -178,6 +188,7 @@ def createDown():
         j+=40
     return
 
+# Rotate the puzzle
 def rotateHelper():
     temp = solutionsDown[0]
     i = 0
@@ -187,6 +198,7 @@ def rotateHelper():
     solutionsDown[len(solutionsDown)-1] = temp
     return
 
+# Rotate the puzzle
 def rotateDownClues(n):
     i = 0
     while i < n:
@@ -199,13 +211,14 @@ def rotateDownClues(n):
 
 # Getting the data from New York Times puzzle - SELENIUM ---------------------------------
 # Main driver for Selenium opening Firefox
-driver = webdriver.Firefox()
+driver = webdriver.Firefox(capabilities=caps)
 
+print("Opening New York Times website")
 driver.set_page_load_timeout(50)                                            # Timeout after 50secs if page does not load
 driver.get("https://www.nytimes.com/crosswords/game/mini")                  # Open the new york times website
 driver.find_element_by_xpath("//button[@aria-label='OK']").send_keys(Keys.ENTER)        # Press Enter right after the website opens up
 driver.find_element_by_xpath("//button[@aria-label='reveal']").click()                     # Click on Reveal to open the reveal sub menu
-driver.find_element_by_xpath('/html/body/div[1]/div/div/div[4]/div/main/div[2]/div/div/ul/div[2]/li[2]/ul/li[3]/a').click()     # Click the Puzzle from sub menu
+driver.find_element_by_xpath('/html/body/div[1]/div/div/div[4]/div/main/div[2]/div/div/ul/div[2]/li[2]/ul/li[3]/a').click()
 driver.find_element_by_xpath("//button[@aria-label='Reveal']").send_keys(Keys.ENTER)            # Press Enter to reveal the puzzle
 driver.find_element_by_xpath("//button[@aria-label='Subscribe to Play']").send_keys(Keys.ENTER)         # Press enter to close the pop up
 element = driver.find_element_by_xpath("/html/body")            # Put the body tag inside element
@@ -220,8 +233,9 @@ driver.quit()                 # Quit the driver and session
 
 # MAIN Method - Making the GUI ----------------------------------------------------------
 # Making the main crossword window
+print("Creating main window for GUI")
 window = tk.Tk()
-window.title("New York Times Mini Puzzle - Demo 1")                 # Window title
+window.title("New York Times Mini Puzzle - Demo 2")                 # Window title
 # Size of the window
 window.geometry("1366x768")
 
@@ -249,6 +263,7 @@ wordDown = ""
 downIndex = 0
 flag = 1
 blackBlocks = ['0', '0', '0', '0', '0']
+print("Finding the letters from the puzzle")
 while i < 25:
     indexLetter = 'id="cell-id-' + str(i) + '"'
     index = content.find(indexLetter)
@@ -260,6 +275,7 @@ while i < 25:
         wordAcross = ""
         downIndex = 0
     if letter == 'Cell-block':
+        print("Black cell detected")
         row = int(i / 5)
         col = i % 5
         markBlack(col, row)
@@ -306,8 +322,7 @@ while i < 25:
 if(len(wordAcross) > 0 and len(solutionsAcross) < 5):
     solutionsAcross.append(wordAcross)
 
-
-print(blackBlocks)
+# Rotate the puzzle if black cells are at the start
 if(blackBlocks[0] == 1 and blackBlocks[1] == 2 and blackBlocks[2] == 3 and blackBlocks[4] != 5):
     rotateDownClues(3)
 else:
@@ -329,13 +344,10 @@ print(solutionsDown)
 # Create a canvas for the clues
 X = tk.Canvas(window,height = 300,width=700,highlightbackground='black')
 X.place(x = 550, y = 50)
-tk.Label(window, font=("Arial", 20), text = 'Old Clues', bg='black', fg = 'white',).place(y = 25, x = 900, anchor="center")
-# X.pack(padx=50,side='right')                # Position the clues section canvas at the right side of the screen
 
 # New clues section
 newClues = tk.Canvas(window,height = 300,width=700,highlightbackground='black')
 newClues.place(x = 550, y = 400)
-tk.Label(window, font=("Arial", 20), text = 'New Clues', bg='black', fg = 'white',).place(y = 375, x = 900, anchor="center")
 
 # ACROSS SECTION --------------------------------------------------------------------------
 # Store the clues in a dictionary, label is clue number, element is clue itself
@@ -385,21 +397,17 @@ caps["pageLoadStrategy"] = "eager"
 driverAcross = webdriver.Firefox(capabilities=caps)
 i = 0
 acrossCluesNew = list()
+print("Opening dictionary.com to find clue!")
 while i < 5:
-    # time.sleep(1)
-    # driverAcross.implicitly_wait(10)
-    # driverAcross.set_page_load_timeout(50)
-
     link = "https://www.dictionary.com/browse/" + solutionsAcross[i] + "?s=t"
     driverAcross.get(link)
-    # driverAcross.find_element_by_id("searchbar_input").send_keys(solutionsAcross[i])
     time.sleep(2)                   # Wait 4secs after loading is finished
-    # driverAcross.find_element_by_id("searchbar_input").send_keys(Keys.ENTER)
 
     try:
         element = driverAcross.find_element_by_css_selector("section.css-pnw38j:nth-child(2) > div:nth-child(2) > div:nth-child(1)")
         temp = element.get_attribute("innerHTML")       # Copy all html to word
     except:
+        print("Clue not found in dictionary.com, trying oxford dictionary")
         oxford(solutionsAcross[i], 0)
         i+=1
         continue
@@ -421,12 +429,14 @@ while i < 5:
     a = acrossCluesList[len(acrossCluesNew)].find(clue)
     if(a != -1):
         print(acrossCluesList[len(acrossCluesNew)])
-        definitions(solutionsAcross[i], 0)
+        print("Clue not found in dictionary.com, trying definitions.net")
+        oxford(solutionsAcross[i], 0)
     elif (len(clue) < 10):
-        print(clue[:105])
+        print(clue[:105].strip(' : '))
+        print("Clue not found in dictionary.com, trying oxford dictionary")
         oxford(solutionsAcross[i], 0)
     else:
-        print(clue[:105])
+        print(clue[:105].strip(' : '))
         acrossCluesNew.append(clue[:105])
     i+=1
 
@@ -436,25 +446,20 @@ window.update()
 
 
 # Getting Down clues ------------------------------------------------------------------
-driverDown = webdriver.Firefox()
+driverDown = webdriver.Firefox(capabilities=caps)
 i = 0
 downCluesNew = list()
+print("Opening dictionary.com to find clues")
 while i < 5:
-    # time.sleep(2)
-    # driverDown.implicitly_wait(10)
-    # driverDown.set_page_load_timeout(70)
-    # driverDown.get("https://www.dictionary.com/")
     link = "https://www.dictionary.com/browse/" + solutionsDown[i] + "?s=t"
     driverDown.get(link)
     time.sleep(2)                   # Wait 4secs after loading is finished
-    # driverDown.find_element_by_id("searchbar_input").send_keys(solutionsDown[i])
-    # time.sleep(1)                   # Wait 4secs after loading is finished
-    # driverDown.find_element_by_id("searchbar_input").send_keys(Keys.ENTER)
 
     try:
         element = driverDown.find_element_by_css_selector("section.css-pnw38j:nth-child(2) > div:nth-child(2) > div:nth-child(1)")
         temp = element.get_attribute("innerHTML")       # Copy all html to word
     except:
+        print("Clue not found in dictionary.com, trying oxford dictionary")
         oxford(solutionsDown[i], 1)
         i+=1
         continue
@@ -470,24 +475,23 @@ while i < 5:
     else:
         clue = temp[index1+1:index2]
 
-
     clue = clue.strip('<')
     clue = clue.strip(':')
     a = downCluesList[len(downCluesNew)].find(clue)
     if(a != -1):
         print(downCluesList[len(downCluesNew)])
+        print("Clue not found in dictionary.com, trying oxford dictionary")
         oxford(solutionsDown[i], 1)
     elif (len(clue) < 10):
         print(clue[:100])
+        print("Clue not found in dictionary.com, trying oxford dictionary")
         oxford(solutionsDown[i], 1)
     else:
         downCluesNew.append(clue[:100])
     i+=1
 
 driverDown.quit()
-# print(downCluesNew)
 createDownNew()
-window.update()
 
 
 # Update the GUI
