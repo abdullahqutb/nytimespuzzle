@@ -1,4 +1,5 @@
 # NEW YORK TIMES mini puzzle
+## CS 461 Bilkent
 
 This program re-generates clues for the new york times mini(5x5) puzzle.
 
